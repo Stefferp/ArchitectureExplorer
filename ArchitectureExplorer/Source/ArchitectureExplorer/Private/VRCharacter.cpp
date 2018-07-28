@@ -9,8 +9,11 @@ AVRCharacter::AVRCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	VRRoot = CreateDefaultSubobject<USceneComponent>(TEXT("VR Root"));
+	VRRoot->SetupAttachment(GetRootComponent());
+
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(GetRootComponent());
+	Camera->SetupAttachment(VRRoot);
 }
 
 // Called when the game starts or when spawned
@@ -24,7 +27,10 @@ void AVRCharacter::BeginPlay()
 void AVRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	FVector CameraOffset = Camera->GetComponentLocation() - GetActorLocation();
+	CameraOffset.Z = 0;
+	AddActorWorldOffset(CameraOffset);
+	VRRoot->AddWorldOffset(-CameraOffset);
 }
 
 // Called to bind functionality to input
