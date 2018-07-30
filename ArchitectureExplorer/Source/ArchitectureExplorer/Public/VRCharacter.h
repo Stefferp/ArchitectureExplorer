@@ -31,14 +31,22 @@ private:
 
 	void MoveRight(float throttle);
 
+	void BeginTeleport();
+
+	void FinishTeleport();
+
+	void TurnRight();
+
+	void TurnLeft();
+
 	void CompensateForVRMovement();
 
 	void UpdateTeleportMarker();
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	class UCameraComponent* Camera;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* VRRoot;
 
 	UPROPERTY(VisibleAnywhere)
@@ -46,5 +54,14 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float MaxTeleportDistance = 500;
+
+	UPROPERTY(EditAnywhere)
+	float RotationDegrees = 45;
+
+	UPROPERTY(EditAnywhere)
+	float TeleportFadeTime = .2;
+
+	UPROPERTY(EditAnywhere)
+	FVector TeleportRange = FVector(100, 100, 100);
 
 };
