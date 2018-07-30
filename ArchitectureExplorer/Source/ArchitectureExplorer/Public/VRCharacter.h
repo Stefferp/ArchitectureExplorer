@@ -26,42 +26,39 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+	UPROPERTY(VisibleAnywhere)
+		class UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere)
+		class USceneComponent* VRRoot;
+
+	UPROPERTY(VisibleAnywhere)
+		class UStaticMeshComponent* TeleportMarker;
+
+	UPROPERTY(EditAnywhere)
+		float MaxTeleportDistance = 500;
+
+	UPROPERTY(EditAnywhere)
+		float RotationDegrees = 45;
+
+	UPROPERTY(EditAnywhere)
+		float TeleportFadeTime = .2;
+
+	UPROPERTY(EditAnywhere)
+		FVector TeleportRange = FVector(100, 100, 100);
+
+
+private:
 
 	void MoveForward(float throttle);
-
 	void MoveRight(float throttle);
-
 	void BeginTeleport();
-
 	void FinishTeleport();
-
 	void TurnRight();
-
 	void TurnLeft();
-
+	void Fade(float From, float To);
 	void CompensateForVRMovement();
-
 	void UpdateTeleportMarker();
-
-	UPROPERTY(VisibleAnywhere)
-	class UCameraComponent* Camera;
-
-	UPROPERTY(VisibleAnywhere)
-	class USceneComponent* VRRoot;
-
-	UPROPERTY(VisibleAnywhere)
-	class UStaticMeshComponent* TeleportMarker;
-
-	UPROPERTY(EditAnywhere)
-	float MaxTeleportDistance = 500;
-
-	UPROPERTY(EditAnywhere)
-	float RotationDegrees = 45;
-
-	UPROPERTY(EditAnywhere)
-	float TeleportFadeTime = .2;
-
-	UPROPERTY(EditAnywhere)
-	FVector TeleportRange = FVector(100, 100, 100);
+	bool FindTeleportDestination(FVector&);
 
 };
