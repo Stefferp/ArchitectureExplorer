@@ -10,15 +10,15 @@ UCLASS()
 class ARCHITECTUREEXPLORER_API AVRCharacter : public ACharacter {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	AVRCharacter();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
+	// Sets default values for this character's properties
+	AVRCharacter();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -28,11 +28,23 @@ public:
 private:
 
 	void MoveForward(float throttle);
+
 	void MoveRight(float throttle);
 
-private:
+	void CompensateForVRMovement();
 
+	void UpdateTeleportMarker();
+
+	UPROPERTY()
 	class UCameraComponent* Camera;
+
+	UPROPERTY()
 	class USceneComponent* VRRoot;
+
+	UPROPERTY(VisibleAnywhere)
+	class UStaticMeshComponent* TeleportMarker;
+
+	UPROPERTY(EditAnywhere)
+	float MaxTeleportDistance = 500;
 
 };
