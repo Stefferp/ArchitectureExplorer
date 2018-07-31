@@ -2,12 +2,15 @@
 
 #include "VRCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "TimerManager.h"
+#include "NavigationSystem.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInterface.h"
+#include "GameFramework/PlayerController.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
-#include "GameFramework/PlayerController.h"
-#include "TimerManager.h"
-#include "NavigationSystem.h"
+#include "Components/PostProcessComponent.h"
 
 // Sets default values
 AVRCharacter::AVRCharacter()
@@ -23,12 +26,20 @@ AVRCharacter::AVRCharacter()
 
 	TeleportMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Teleporter"));
 	TeleportMarker->SetupAttachment(GetRootComponent());
+
+	PostProcessComponent = CreateDefaultSubobject<UPostProcessComponent>(TEXT("PostProcessComponent"));
+	PostProcessComponent->SetupAttachment(GetRootComponent());
 }
 
 // Called when the game starts or when spawned
 void AVRCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if (BlinkerMaterialParent != nullptr) {
+		BlinkerMaterial = UMaterialInstanceDynamic::Create(BlinkerMaterialParent, this);
+		PostProcessComponent->AddOrUpdateBlendable(BlinkerMaterial);
+		BlinkerMaterial->SetScalarParameterValue(TEXT("Radius"), 0.2);
+	}
 }
 
 // Called every frame
@@ -37,17 +48,6 @@ void AVRCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	CompensateForVRMovement();
 	UpdateTeleportMarker();		
-}
-
-void AVRCharacter::UpdateTeleportMarker()
-{
-	FVector OutLocation;
-	bool bHit = FindTeleportDestination(OutLocation);
-	if (bHit) {
-		TeleportMarker->SetWorldLocation(OutLocation);
-		TeleportMarker->SetVisibility(true);
-	}
-	TeleportMarker->SetVisibility(bHit);
 }
 
 bool AVRCharacter::FindTeleportDestination(FVector& OutLocation)
@@ -65,6 +65,19 @@ bool AVRCharacter::FindTeleportDestination(FVector& OutLocation)
 
 	OutLocation = NavLocation.Location;
 	return true;
+}
+
+void AVRCharacter::UpdateTeleportMarker()
+{
+	FVector OutLocation;
+	bool bHit = FindTeleportDestination(OutLocation);	
+	if (bHit) {
+		TeleportMarker->SetWorldLocation(OutLocation);
+		TeleportMarker->SetVisibility(true);
+	}
+	else {
+		TeleportMarker->SetVisibility(false);
+	}	
 }
 
 void AVRCharacter::CompensateForVRMovement()
