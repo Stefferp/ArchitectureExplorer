@@ -30,6 +30,13 @@ private:
 		class UCameraComponent* Camera;
 
 	UPROPERTY(VisibleAnywhere)
+		class UMotionControllerComponent* LeftController = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		UMotionControllerComponent* RightController = nullptr;
+
+
+	UPROPERTY(VisibleAnywhere)
 		class USceneComponent* VRRoot;
 
 	UPROPERTY(VisibleAnywhere)
@@ -56,6 +63,9 @@ private:
 	UPROPERTY()
 		class UMaterialInstanceDynamic* BlinkerMaterial = nullptr;
 
+	UPROPERTY(EditAnywhere)
+		class UCurveFloat* RadiusVsVelocity = nullptr;
+
 private:
 
 	void MoveForward(float throttle);
@@ -68,5 +78,5 @@ private:
 	void CompensateForVRMovement();
 	void UpdateTeleportMarker();
 	bool FindTeleportDestination(FVector&);
-
+	void SetVignetteRadiusDynamically();
 };

@@ -11,6 +11,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/PostProcessComponent.h"
+#include "Curves/CurveFloat.h"
+#include "MotionControllerComponent.h"
+#include "XRMotionControllerBase.h"
 
 // Sets default values
 AVRCharacter::AVRCharacter()
@@ -23,6 +26,12 @@ AVRCharacter::AVRCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(VRRoot);
+
+	LeftController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Left Controller"));
+	LeftController->SetupAttachment(VRRoot);
+
+	RightController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Right Controller"));
+	RightController->SetupAttachment(VRRoot);
 
 	TeleportMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Teleporter"));
 	TeleportMarker->SetupAttachment(GetRootComponent());
@@ -38,7 +47,7 @@ void AVRCharacter::BeginPlay()
 	if (BlinkerMaterialParent != nullptr) {
 		BlinkerMaterial = UMaterialInstanceDynamic::Create(BlinkerMaterialParent, this);
 		PostProcessComponent->AddOrUpdateBlendable(BlinkerMaterial);
-		BlinkerMaterial->SetScalarParameterValue(TEXT("Radius"), 0.2);
+		BlinkerMaterial->SetScalarParameterValue(TEXT("Radius"), 0);
 	}
 }
 
@@ -47,7 +56,8 @@ void AVRCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	CompensateForVRMovement();
-	UpdateTeleportMarker();		
+	UpdateTeleportMarker();	
+	SetVignetteRadiusDynamically();
 }
 
 bool AVRCharacter::FindTeleportDestination(FVector& OutLocation)
@@ -60,7 +70,9 @@ bool AVRCharacter::FindTeleportDestination(FVector& OutLocation)
 	bool bHit = GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECollisionChannel::ECC_Visibility);
 	if (!bHit) return false;
 
-	bool bOnNavMesh = UNavigationSystemV1::GetNavigationSystem(GetWorld())->ProjectPointToNavigation(OutHit.Location, NavLocation, TeleportRange);
+	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	bool bOnNavMesh = NavSystem->ProjectPointToNavigation(OutHit.Location, NavLocation, TeleportRange);
+	
 	if (!bOnNavMesh) return false;
 
 	OutLocation = NavLocation.Location;
@@ -120,6 +132,14 @@ void AVRCharacter::Fade(float From, float To)
 	if (PC != nullptr) {
 		PC->PlayerCameraManager->StartCameraFade(From, To, TeleportFadeTime, FLinearColor::Black);
 	}
+}
+
+void AVRCharacter::SetVignetteRadiusDynamically()
+{
+	if (!RadiusVsVelocity) return;
+	float Speed = GetVelocity().Size();
+	float Radius = RadiusVsVelocity->GetFloatValue(Speed);
+	BlinkerMaterial->SetScalarParameterValue(TEXT("Radius"), Radius);
 }
 
 void AVRCharacter::MoveForward(float throttle)
