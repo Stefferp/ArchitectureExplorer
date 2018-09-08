@@ -44,6 +44,21 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		class USplineComponent* TeleportSpline;
 
+	UPROPERTY(EditAnywhere)
+		class UCurveFloat* RadiusVsVelocity = nullptr;
+
+	UPROPERTY(VisibleAnywhere)
+		class USplineComponent* TeleportPath;
+
+	UPROPERTY()
+		TArray<class UStaticMeshComponent*> TeleportPathMeshPool;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UStaticMesh* TeleportMesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UMaterialInterface* TeleportMaterial = nullptr;
+
 	UPROPERTY()
 		class UPostProcessComponent* PostProcessComponent;
 
@@ -71,18 +86,6 @@ private:
 	UPROPERTY()
 		class UMaterialInstanceDynamic* BlinkerMaterial = nullptr;
 
-	UPROPERTY(EditAnywhere)
-		class UCurveFloat* RadiusVsVelocity = nullptr;
-
-	UPROPERTY()
-		class TArray<UStaticMeshComponent*> TeleportPath;
-
-	UPROPERTY(EditDefaultsOnly)
-		class UStaticMesh* TeleportMesh = nullptr;
-
-	UPROPERTY(EditDefaultsOnly)
-		class UMaterialInterface* TeleportMaterial = nullptr;
-
 private:
 
 	void MoveForward(float throttle);
@@ -96,6 +99,6 @@ private:
 	void UpdateTeleportMarker();
 	void DrawTeleportPath(const TArray<FVector>& Path);
 	void UpdateSpline(const TArray<FVector>& Path);
-	bool FindTeleportDestination(FVector&);
+	bool FindTeleportDestination(TArray<FVector>&, FVector&);
 	void SetVignetteRadiusDynamically();
 };
