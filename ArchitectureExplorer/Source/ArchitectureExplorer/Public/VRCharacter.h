@@ -51,7 +51,7 @@ private:
 		class USplineComponent* TeleportPath;
 
 	UPROPERTY()
-		TArray<class UStaticMeshComponent*> TeleportPathMeshPool;
+		TArray<class USplineMeshComponent*> TeleportPathMeshPool;
 
 	UPROPERTY(EditDefaultsOnly)
 		class UStaticMesh* TeleportMesh = nullptr;

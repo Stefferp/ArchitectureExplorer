@@ -8,6 +8,7 @@
 #include "Materials/MaterialInterface.h"
 #include "GameFramework/PlayerController.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SplineMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/PostProcessComponent.h"
@@ -82,16 +83,18 @@ bool AVRCharacter::FindTeleportDestination(TArray<FVector>& OutPath, FVector& Ou
 		this
 	);
 	Params.bTraceComplex = true;
-	Params.DrawDebugType = EDrawDebugTrace::ForOneFrame;
+
 	FPredictProjectilePathResult Result;
 	bool bHit = UGameplayStatics::PredictProjectilePath(this, Params, Result);
 	if (!bHit) return false;
+
 	for (FPredictProjectilePathPointData PointData : Result.PathData) {
 		OutPath.Add(PointData.Location);
 	}
 	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	bool bOnNavMesh = NavSystem->ProjectPointToNavigation(Result.HitResult.Location, NavLocation, TeleportRange);
 	if (!bOnNavMesh) return false;
+
 	OutLocation = Result.HitResult.Location;
 	return true;
 }
@@ -108,23 +111,36 @@ void AVRCharacter::UpdateTeleportMarker()
 	}
 	else {
 		TeleportMarker->SetVisibility(false);
+		TArray<FVector> EmptyPath;
+		DrawTeleportPath(EmptyPath);
 	}	
 }
 
 void AVRCharacter::DrawTeleportPath(const TArray<FVector> &Path)
 {
 	UpdateSpline(Path);
-	for (int32 i = 0; i < Path.Num(); ++i) {
+
+	for (USplineMeshComponent* SplineMesh : TeleportPathMeshPool) {
+		SplineMesh->SetVisibility(false);
+	}
+
+	int32 NumberOfSegments = Path.Num() - 1;
+	for (int32 i = 0; i < NumberOfSegments; ++i) {
 		if (TeleportPathMeshPool.Num() <= i) {
-			UStaticMeshComponent* DynamicMesh = NewObject<UStaticMeshComponent>(this);
-			DynamicMesh->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
-			DynamicMesh->SetStaticMesh(TeleportMesh);
-			DynamicMesh->SetMaterial(0, TeleportMaterial);
-			DynamicMesh->RegisterComponent();
-			TeleportPathMeshPool.Add(DynamicMesh);
+			USplineMeshComponent* SplineMesh = NewObject<USplineMeshComponent>(this);
+			SplineMesh->SetMobility(EComponentMobility::Movable);
+			SplineMesh->AttachToComponent(TeleportSpline, FAttachmentTransformRules::KeepRelativeTransform);
+			SplineMesh->SetStaticMesh(TeleportMesh);
+			SplineMesh->SetMaterial(0, TeleportMaterial);
+			SplineMesh->RegisterComponent();
+			TeleportPathMeshPool.Add(SplineMesh);
 		}
-		UStaticMeshComponent* DynamicMesh = TeleportPathMeshPool[i];
-		DynamicMesh->SetWorldLocation(Path[i]);
+		USplineMeshComponent* SplineMesh = TeleportPathMeshPool[i];
+		FVector StartPos, StartTan, EndPos, EndTan;
+		TeleportSpline->GetLocalLocationAndTangentAtSplinePoint(i, StartPos, StartTan);
+		TeleportSpline->GetLocalLocationAndTangentAtSplinePoint(i+1, EndPos, EndTan);
+		SplineMesh->SetVisibility(true);
+		SplineMesh->SetStartAndEnd(StartPos, StartTan, EndPos, EndTan);
 	}
 }
 
@@ -168,8 +184,7 @@ void AVRCharacter::BeginTeleport()
 
 void AVRCharacter::FinishTeleport()
 {
-	SetActorLocation(TeleportMarker->GetComponentLocation());
-	SetActorLocation(TeleportMarker->GetComponentLocation() + GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	SetActorLocation(TeleportMarker->GetComponentLocation() + (GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * GetActorUpVector()));
 	Fade(1, 0);
 }
 
