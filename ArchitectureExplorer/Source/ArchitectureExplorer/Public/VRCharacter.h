@@ -35,21 +35,29 @@ private:
 	UPROPERTY(VisibleAnywhere)
 		UMotionControllerComponent* RightController = nullptr;
 
-
 	UPROPERTY(VisibleAnywhere)
 		class USceneComponent* VRRoot;
 
 	UPROPERTY(VisibleAnywhere)
 		class UStaticMeshComponent* TeleportMarker;
 
+	UPROPERTY(VisibleAnywhere)
+		class USplineComponent* TeleportSpline;
+
 	UPROPERTY()
 		class UPostProcessComponent* PostProcessComponent;
 
 	UPROPERTY(EditAnywhere)
-		float MaxTeleportDistance = 500;
+		float TeleportRadius = 20;
+
+	UPROPERTY(EditAnywhere)
+		float TeleportSpeed = 500;
 
 	UPROPERTY(EditAnywhere)
 		float RotationDegrees = 45;
+
+	UPROPERTY(EditAnywhere)
+		float SimTime = 5;
 
 	UPROPERTY(EditAnywhere)
 		float TeleportFadeTime = .2;
@@ -66,6 +74,15 @@ private:
 	UPROPERTY(EditAnywhere)
 		class UCurveFloat* RadiusVsVelocity = nullptr;
 
+	UPROPERTY()
+		class TArray<UStaticMeshComponent*> TeleportPath;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UStaticMesh* TeleportMesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UMaterialInterface* TeleportMaterial = nullptr;
+
 private:
 
 	void MoveForward(float throttle);
@@ -77,6 +94,8 @@ private:
 	void Fade(float From, float To);
 	void CompensateForVRMovement();
 	void UpdateTeleportMarker();
+	void DrawTeleportPath(const TArray<FVector>& Path);
+	void UpdateSpline(const TArray<FVector>& Path);
 	bool FindTeleportDestination(FVector&);
 	void SetVignetteRadiusDynamically();
 };
