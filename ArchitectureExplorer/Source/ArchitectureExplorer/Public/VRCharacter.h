@@ -30,10 +30,10 @@ private:
 		class UCameraComponent* Camera;
 
 	UPROPERTY(VisibleAnywhere)
-		class UMotionControllerComponent* LeftController = nullptr;
+		class AHandController* LeftController = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
-		UMotionControllerComponent* RightController = nullptr;
+		class AHandController* RightController = nullptr;
 
 	UPROPERTY(VisibleAnywhere)
 		class USceneComponent* VRRoot;

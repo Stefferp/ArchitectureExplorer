@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VRCharacter.h"
+#include "HandController.h"
 #include "Camera/CameraComponent.h"
 #include "TimerManager.h"
 #include "NavigationSystem.h"
@@ -14,7 +15,6 @@
 #include "Components/PostProcessComponent.h"
 #include "Components/SplineComponent.h"
 #include "Curves/CurveFloat.h"
-#include "MotionControllerComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -30,14 +30,14 @@ AVRCharacter::AVRCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(VRRoot);
 
-	LeftController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Left Controller"));
-	LeftController->SetupAttachment(VRRoot);
+	LeftController = GetWorld()->SpawnActor<AHandController>();
+	if (LeftController != nullptr) LeftController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
 
-	RightController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("Right Controller"));
-	RightController->SetupAttachment(VRRoot);
+	RightController = GetWorld()->SpawnActor<AHandController>();
+	if (RightController != nullptr) RightController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
 	
 	TeleportSpline = CreateDefaultSubobject<USplineComponent>(TEXT("Teleport beam"));
-	TeleportSpline->SetupAttachment(RightController);
+	TeleportSpline->SetupAttachment(VRRoot);
 
 	TeleportMarker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Teleporter"));
 	TeleportMarker->SetupAttachment(GetRootComponent());
@@ -71,8 +71,8 @@ void AVRCharacter::Tick(float DeltaTime)
 bool AVRCharacter::FindTeleportDestination(TArray<FVector>& OutPath, FVector& OutLocation)
 {
 	FNavLocation NavLocation;
-	FVector Start = RightController->GetComponentLocation();
-	FVector Look = RightController->GetForwardVector();
+	FVector Start = RightController->GetActorLocation();
+	FVector Look = RightController->GetActorForwardVector();
 
 	FPredictProjectilePathParams Params(
 		TeleportRadius, 
