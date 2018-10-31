@@ -86,8 +86,11 @@ private:
 	UPROPERTY()
 		class UMaterialInstanceDynamic* BlinkerMaterial = nullptr;
 
-private:
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AHandController> HandControllerClass;
 
+
+private:
 	void MoveForward(float throttle);
 	void MoveRight(float throttle);
 	void BeginTeleport();

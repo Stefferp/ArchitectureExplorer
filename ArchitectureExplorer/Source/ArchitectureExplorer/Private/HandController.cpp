@@ -26,3 +26,7 @@ void AHandController::Tick(float DeltaTime)
 
 }
 
+void AHandController::setHand(EControllerHand hand)
+{
+	MotionController->SetTrackingSource(hand);
+}

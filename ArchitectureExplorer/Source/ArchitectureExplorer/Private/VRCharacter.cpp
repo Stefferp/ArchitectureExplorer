@@ -51,11 +51,17 @@ void AVRCharacter::BeginPlay()
 		PostProcessComponent->AddOrUpdateBlendable(BlinkerMaterial);
 		BlinkerMaterial->SetScalarParameterValue(TEXT("Radius"), 0);
 	}
-	LeftController = GetWorld()->SpawnActor<AHandController>();
-	if (LeftController != nullptr) LeftController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
+	LeftController = GetWorld()->SpawnActor<AHandController>(HandControllerClass);
+	if (LeftController != nullptr) {
+		LeftController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
+		LeftController->setHand(EControllerHand::Left);
+	}
 
-	RightController = GetWorld()->SpawnActor<AHandController>();
-	if (RightController != nullptr) RightController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
+	RightController = GetWorld()->SpawnActor<AHandController>(HandControllerClass);
+	if (RightController != nullptr) {
+		RightController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
+		RightController->setHand(EControllerHand::Right);
+	}
 }
 
 // Called every frame

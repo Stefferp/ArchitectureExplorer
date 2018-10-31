@@ -23,8 +23,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-private: 
+	void setHand(EControllerHand hand);
 
+private: 
+	UPROPERTY(VisibleAnywhere)
 	class UMotionControllerComponent* MotionController;
 	
 	
