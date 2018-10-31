@@ -10,7 +10,7 @@ UCLASS()
 class ARCHITECTUREEXPLORER_API AVRCharacter : public ACharacter {
 	GENERATED_BODY()
 
-
+		//testing 1 2
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
