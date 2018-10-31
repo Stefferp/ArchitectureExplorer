@@ -29,12 +29,6 @@ AVRCharacter::AVRCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(VRRoot);
-
-	LeftController = GetWorld()->SpawnActor<AHandController>();
-	if (LeftController != nullptr) LeftController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
-
-	RightController = GetWorld()->SpawnActor<AHandController>();
-	if (RightController != nullptr) RightController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
 	
 	TeleportSpline = CreateDefaultSubobject<USplineComponent>(TEXT("Teleport beam"));
 	TeleportSpline->SetupAttachment(VRRoot);
@@ -57,6 +51,11 @@ void AVRCharacter::BeginPlay()
 		PostProcessComponent->AddOrUpdateBlendable(BlinkerMaterial);
 		BlinkerMaterial->SetScalarParameterValue(TEXT("Radius"), 0);
 	}
+	LeftController = GetWorld()->SpawnActor<AHandController>();
+	if (LeftController != nullptr) LeftController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
+
+	RightController = GetWorld()->SpawnActor<AHandController>();
+	if (RightController != nullptr) RightController->AttachToComponent(VRRoot, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 // Called every frame
