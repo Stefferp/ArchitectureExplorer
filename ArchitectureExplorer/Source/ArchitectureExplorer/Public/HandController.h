@@ -11,23 +11,30 @@ class ARCHITECTUREEXPLORER_API AHandController : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
+public:	//variables
 	AHandController();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
+public:	//methods
 	virtual void Tick(float DeltaTime) override;
-
 	void setHand(EControllerHand hand);
 
-private: 
+private: //private methods and variables
+	UFUNCTION()
+	void ActorBeginOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	UFUNCTION()
+	void ActorEndOverlap(AActor* OverlappedActor, AActor* OtherActor);
+	bool bCanClimb = false;
+	bool CanClimb() const;
+	
+
+private: //UPROPERTIES
 	UPROPERTY(VisibleAnywhere)
-	class UMotionControllerComponent* MotionController;
-	
-	
+		class UMotionControllerComponent* MotionController;
+
+	UPROPERTY(EditDefaultsOnly)
+		class UHapticFeedbackEffect_Base* HapticEffect;
 };
